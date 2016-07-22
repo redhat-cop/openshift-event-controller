@@ -16,6 +16,7 @@ def watch_routes():
     for event in watcher.stream():
         if type(event) is dict and 'type' in event:
             if event['type'] == 'ADDED':
+                remove_dns(event)
                 add_dns(event)
             elif event['type'] == 'MODIFIED':
                 route = get_route(event)
