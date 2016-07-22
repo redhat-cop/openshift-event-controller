@@ -38,7 +38,7 @@ class IPAClient(object):
     def create_cert(self, host, realm, key, csr):
         try:
             # CREATE CERT
-            cert_request = self.session.post('{0}session/json'.format(self.ipa_url), headers=header,
+            cert_request = self.session.post('{0}session/json'.format(self.ipa_url), headers=self.header,
                                              data=json.dumps({'id': 0,
                                                               'method': 'cert_request',
                                                               'params': [[csr],
