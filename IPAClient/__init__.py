@@ -5,13 +5,14 @@ from OpenSSL import crypto
 
 
 class IPAClient(object):
-    def __init__(self, ipa_user, ipa_password, ipa_url, bits=2048):
+    def __init__(self, ipa_user, ipa_password, ipa_url, bits=2048, ca_trust='/etc/ssl/certs/ca-bundle.trust.crt'):
         #ipaurl="https://idm-1.etl.lab.eng.rdu2.redhat.com/ipa/"
         #realm="ETL.LAB.ENG.RDU2.REDHAT.COM"
 
         self.session = requests.Session()
         self.ipa_url = ipa_url
         self.bits = bits
+        self.ca_trust = ca_trust
 
         #TODO: Sign Request with Dynamic CA (IPA)
         # authenticate to IPA Server
@@ -20,7 +21,7 @@ class IPAClient(object):
                                                         params="",
                                                         data = {'user': ipa_user,
                                                                 'password': ipa_password},
-                                                        verify=False,
+                                                        verify=self.ca_trust,
                                                         headers={'Content-Type':'application/x-www-form-urlencoded',
                                                                  'Accept':'applicaton/json'})
         except Exception as e:
@@ -32,14 +33,14 @@ class IPAClient(object):
         try:
             # CREATE HOST [event['object']['spec']['host']]
             create_host = self.session.post('{0}session/json'.format(self.ipa_url), headers=self.header,
-                                            data=json.dumps({'id': 0, 'method': 'host_add', 'params': [host, {'force': True}]}), verify=False)
+                                            data=json.dumps({'id': 0, 'method': 'host_add', 'params': [host, {'force': True}]}), verify=self.ca_trust)
         except Exception as e:
             raise Exception("Create Host Exception: {0}".format(e))
 
     def delete_host(self, host):
         try:
             resp = self.session.post('{0}session/json'.format(self.ipa_url), headers=self.header,
-                                            data=json.dumps({'id': 0, 'method': 'host_del', 'params': [host, {'force': True}]}), verify=False)
+                                            data=json.dumps({'id': 0, 'method': 'host_del', 'params': [host, {'force': True}]}), verify=self.ca_trust)
         except Exception as e:
             raise Exception("Delete Host Exception: {0}".format(e))
 
@@ -67,7 +68,7 @@ class IPAClient(object):
                                                                          {'principal': 'host/{0}@{1}'.format(host, realm),
                                                                           'request_type': 'pkcs10',
                                                                           'add': False}]}),
-                                             verify=False)
+                                             verify=self.ca_trust)
             cert_resp = cert_request.json()
         except Exception as e:
             raise Exception("Cert Create Exception: {0}".format(e))

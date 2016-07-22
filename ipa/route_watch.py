@@ -11,6 +11,7 @@ from OpenShiftWatcher import OpenShiftWatcher
 logging.basicConfig(format="%(asctime)s %(message)s")
 logger = logging.getLogger('routewatcher')
 logger.setLevel(logging.INFO)
+ca_trust = os.getenv('SSL_CA_TRUST', '/etc/ssl/certs/ca-bundle.trust.crt')
 
 
 def watch_routes():
@@ -41,7 +42,7 @@ def watch_routes():
 def get_route(route_name):
     req = requests.get('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name),
                        headers={'Authorization': 'Bearer {0}'.format(os.environ['OS_TOKEN']), 'Content-Type':'application/strategic-merge-patch+json'},
-                       verify=False)
+                       verify=ca_trust)
     return req
 
 def update_route(route_fqdn, route_name):
@@ -58,7 +59,7 @@ def update_route(route_fqdn, route_name):
                              data=json.dumps({'spec': {'tls': {'certificate': '-----BEGIN CERTIFICATE-----\n{0}\n-----END CERTIFICATE-----'.format(
                                  '\n'.join(certificate[i:i+65] for i in xrange(0, len(certificate), 65))),
                                                                'key': '{0}'.format(key.exportKey('PEM'))}}}),
-                             params="", verify=False)
+                             params="", verify=ca_trust)
         logger.info("[ROUTE UPDATED]: {0}".format(route_fqdn))
     except Exception as e:
         logger.info("[ROUTE UPDATE ERROR]: Unable to update route {0}.")
