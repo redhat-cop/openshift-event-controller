@@ -5,12 +5,13 @@ from OpenSSL import crypto
 
 
 class IPAClient(object):
-    def __init__(self, ipa_user, ipa_password, ipa_url):
+    def __init__(self, ipa_user, ipa_password, ipa_url, bits=2048):
         #ipaurl="https://idm-1.etl.lab.eng.rdu2.redhat.com/ipa/"
         #realm="ETL.LAB.ENG.RDU2.REDHAT.COM"
 
         self.session = requests.Session()
         self.ipa_url = ipa_url
+        self.bits = bits
 
         #TODO: Sign Request with Dynamic CA (IPA)
         # authenticate to IPA Server
@@ -45,7 +46,7 @@ class IPAClient(object):
 
     def create_cert(self, host, realm):
         try:
-            key = pkiutils.create_rsa_key(bits=2048,
+            key = pkiutils.create_rsa_key(bits=self.bits,
                                           keyfile=None,
                                           format='PEM',
                                           passphrase=None)
