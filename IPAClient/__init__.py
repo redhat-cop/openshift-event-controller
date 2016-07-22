@@ -56,3 +56,4 @@ class IPAClient(object):
             '\n'.join(cert_resp['result']['result']['certificate'][i:i+65] for i in xrange(0, len(cert_resp['result']['result']['certificate']), 65)))
         print
         print "KEY:\n {0}".format(key.exportKey('PEM'))
+        return cert_resp['result']['result']['certificate']

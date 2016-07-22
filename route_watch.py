@@ -41,14 +41,14 @@ def watch_routes():
                                    ipa_password=os.environ['IPA_PASSWORD'],
                                    ipa_url=os.environ['IPA_URL'])
             ipa_client.create_host(route_fqdn)
-            ipa_client.create_cert(route_fqdn, os.environ['IPA_REALM'], key, csr)
+            certificate = ipa_client.create_cert(route_fqdn, os.environ['IPA_REALM'], key, csr)
 
             try:
                 #TODO: Update Route
-                req = requests.patch('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], event['object']['metadata']['name']),
+                req = requests.patch('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_fqdn),
                                      headers={'Authorization': 'Bearer {0}'.format(os.environ['OS_TOKEN']), 'Content-Type':'application/strategic-merge-patch+json'},
                                      data=json.dumps({'spec': {'tls': {'certificate': '-----BEGIN CERTIFICATE-----\n{0}\n-----END CERTIFICATE-----'.format(
-                                         '\n'.join(cert_resp['result']['result']['certificate'][i:i+65] for i in xrange(0, len(cert_resp['result']['result']['certificate']), 65))),
+                                         '\n'.join(certificate[i:i+65] for i in xrange(0, len(certificate), 65))),
                                                                        'key': '{0}'.format(key.exportKey('PEM'))}}}),
                                      params="", verify=False)
 
