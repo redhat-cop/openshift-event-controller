@@ -27,10 +27,11 @@ print 'https://{0}/oapi/v1/namespaces/{1}/routes?watch=true'.format(openshift_ap
 class OpenShiftWatcher(object):
     def __init__(self, os_api_endpoint, os_resource, os_namespace, os_auth_token):
         self.os_api_url = "https://{0}/oapi/v1/namespaces/{1}/{2}?watch=true".format(os_api_endpoint, os_namespace, os_resource)
+        self.os_auth_token = os_auth_token
 
-    def stream(self, ):
+    def stream(self):
         req = requests.Request("GET", self.os_api_url,
-                               headers={'Authorization': 'Bearer {0}'.format(os_auth_token)},
+                               headers={'Authorization': 'Bearer {0}'.format(self.os_auth_token)},
                                params="").prepare()
 
         resp = s.send(req, stream=True, verify=False)
@@ -40,16 +41,16 @@ class OpenShiftWatcher(object):
             if line:
                 try:
                     yield json.loads(line)
-                # TODO: Use the specific exception type here.
-                # TODO: Logging -> "No Json Object could be decoded."
+                    # TODO: Use the specific exception type here.
+                    # TODO: Logging -> "No Json Object could be decoded."
                 except Exception as e:
                     continue
 
 def watch_routes():
     watcher = OpenShiftWatcher(os_api_endpoint=os.environ['OS_API'],
-                                os_resource=os.environ['OS_RESOURCE'],
-                                os_namespace=os.environ['OS_NAMESPACE'],
-                                os_auth_token=os.environ['OS_TOKEN'])
+                               os_resource=os.environ['OS_RESOURCE'],
+                               os_namespace=os.environ['OS_NAMESPACE'],
+                               os_auth_token=os.environ['OS_TOKEN'])
 
     for event in watcher.stream():
         if event['type'] == 'ADDED':
@@ -66,21 +67,21 @@ def watch_routes():
             #TODO: Sign Request with Dynamic CA (IPA)
 
             resp = session.post('{0}session/login_password'.format(ipaurl),
-                params="", data = {'user':ipa_user,'password':ipa_password}, verify=False,
-                headers={'Content-Type':'application/x-www-form-urlencoded', 'Accept':'applicaton/json'})
+                                params="", data = {'user':ipa_user,'password':ipa_password}, verify=False,
+                                headers={'Content-Type':'application/x-www-form-urlencoded', 'Accept':'applicaton/json'})
 
             header={'referer': ipaurl, 'Content-Type':'application/json', 'Accept':'application/json'}
 
             # CREATE HOST
             create_host = session.post('{0}session/json'.format(ipaurl), headers=header,
-                data=json.dumps({'id': 0, 'method': 'host_add', 'params': [[event['object']['spec']['host']], {'force': True}]}), verify=False)
+                                       data=json.dumps({'id': 0, 'method': 'host_add', 'params': [[event['object']['spec']['host']], {'force': True}]}), verify=False)
 
             print "    Host Create Return Code: {0}".format(create_host.status_code)
 
             # CREATE CERT
             cert_request = session.post('{0}session/json'.format(ipaurl), headers=header,
-                data=json.dumps({'id': 0, 'method': 'cert_request', 'params': [[csr], {'principal': 'host/{0}@{1}'.format(event['object']['spec']['host'], realm),
-                    'request_type': 'pkcs10', 'add': False}]}), verify=False)
+                                        data=json.dumps({'id': 0, 'method': 'cert_request', 'params': [[csr], {'principal': 'host/{0}@{1}'.format(event['object']['spec']['host'], realm),
+                                                                                                               'request_type': 'pkcs10', 'add': False}]}), verify=False)
 
             print "    Certificate Signing Return Code: {0}".format(cert_request.status_code)
             #print "  {0}".format(cert_request.json())
@@ -93,12 +94,12 @@ def watch_routes():
 
             #TODO: Update Route
             req = requests.patch('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(openshift_api, namespace, event['object']['metadata']['name']),
-                headers={'Authorization': 'Bearer {0}'.format(token), 'Content-Type':'application/strategic-merge-patch+json'},
-                data=json.dumps({'spec': {'tls': {'certificate': '-----BEGIN CERTIFICATE-----\n{0}\n-----END CERTIFICATE-----'.format(
-                    '\n'.join(cert_resp['result']['result']['certificate'][i:i+65] for i in xrange(0, len(cert_resp['result']['result']['certificate']), 65))),
-                    'key': '{0}'.format(key.exportKey('PEM'))}}}),
-                params="", verify=False)
+                                 headers={'Authorization': 'Bearer {0}'.format(token), 'Content-Type':'application/strategic-merge-patch+json'},
+                                 data=json.dumps({'spec': {'tls': {'certificate': '-----BEGIN CERTIFICATE-----\n{0}\n-----END CERTIFICATE-----'.format(
+                                     '\n'.join(cert_resp['result']['result']['certificate'][i:i+65] for i in xrange(0, len(cert_resp['result']['result']['certificate']), 65))),
+                                                                   'key': '{0}'.format(key.exportKey('PEM'))}}}),
+                                 params="", verify=False)
 
             print "    OpenShift Route Update Return Code: {0}".format(req.status_code)
 
-read_stream()
+watch_routes()
