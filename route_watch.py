@@ -5,7 +5,7 @@ import requests
 import json
 import pkiutils
 from OpenSSL import crypto
-import OpenShiftWatcher
+from OpenShiftWatcher import OpenShiftWatcher
 
 #ipaurl="https://idm-1.etl.lab.eng.rdu2.redhat.com/ipa/"
 ipaurl = os.environ['IPA_URL']

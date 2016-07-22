@@ -24,7 +24,6 @@ class OpenShiftWatcher(object):
         # TODO: Logging -> "Response"
 
         for line in resp.iter_lines():
-            print line
             if line:
                 try:
                     yield json.loads(line)
