@@ -1,5 +1,6 @@
 import json
 import requests
+import pkiutils
 from OpenSSL import crypto
 
 
@@ -35,7 +36,34 @@ class IPAClient(object):
         except Exception as e:
             raise Exception("Create Host Exception: {0}".format(e))
 
-    def create_cert(self, host, realm, key, csr):
+    def delete_host(self, host):
+        try:
+            # CREATE HOST [event['object']['spec']['host']]
+            resp = self.session.post('{0}session/json'.format(self.ipa_url), headers=self.header,
+                                            data=json.dumps({'id': 0, 'method': 'host_del', 'params': [host, {'force': True}]}), verify=False)
+            print "    Host Delete Return Code: {0}".format(resp.status_code)
+        except Exception as e:
+            raise Exception("Delete Host Exception: {0}".format(e))
+
+
+    def create_cert(self, host, realm):
+        try:
+            #TODO: Create Private Key and CSR
+            key = pkiutils.create_rsa_key(bits=2048,
+                                          keyfile=None,
+                                          format='PEM',
+                                          passphrase=None)
+            csr = pkiutils.create_csr(key,
+                                      "/CN={0}/C=US/O=Test organisation/".format(host),
+                                      csrfilename=None,
+                                      attributes=None)
+
+            print "    CSR and Key Create Complete"
+        #print csr
+        except Exception as e:
+            raise Exception("Create CSR Exception: {0}".format(e))
+
+
         try:
             # CREATE CERT
             cert_request = self.session.post('{0}session/json'.format(self.ipa_url), headers=self.header,
@@ -56,4 +84,4 @@ class IPAClient(object):
             '\n'.join(cert_resp['result']['result']['certificate'][i:i+65] for i in xrange(0, len(cert_resp['result']['result']['certificate']), 65)))
         print
         print "KEY:\n {0}".format(key.exportKey('PEM'))
-        return cert_resp['result']['result']['certificate']
+        return cert_resp['result']['result']['certificate'], key

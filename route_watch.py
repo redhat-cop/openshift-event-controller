@@ -3,7 +3,6 @@
 import os
 import requests
 import json
-import pkiutils
 from IPAClient import IPAClient
 from OpenSSL import crypto
 from OpenShiftWatcher import OpenShiftWatcher
@@ -18,44 +17,37 @@ def watch_routes():
     for event in watcher.stream():
         if type(event) is dict and 'type' in event:
             if event['type'] == 'ADDED':
-                create_route(event)
+                update_route(event)
             elif event['type'] == 'MODIFIED':
-                print "Got a MODIFIED event type: "
-                print event
+                route = get_route(event)
+                if route.status_code == 404:
+                    delete_route(event)
+                else:
+                    print 'Route \'{0}\' modified'.format(event['object']['metadata']['name'])
 
-def create_route(event):
-    print event
-    print
-    route_fqdn = event['object']['spec']['host']
+def get_route(event):
     route_name = event['object']['metadata']['name']
 
-    print "Route: ",route_fqdn
+    req = requests.get('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name),
+                       headers={'Authorization': 'Bearer {0}'.format(os.environ['OS_TOKEN']), 'Content-Type':'application/strategic-merge-patch+json'},
+                       verify=False
+                       )
 
-    try:
-        #TODO: Create Private Key and CSR
-        key = pkiutils.create_rsa_key(bits=2048,
-                                      keyfile=None,
-                                      format='PEM',
-                                      passphrase=None)
-        csr = pkiutils.create_csr(key,
-                                  "/CN={0}/C=US/O=Test organisation/".format(route_fqdn),
-                                  csrfilename=None,
-                                  attributes=None)
+    return req
 
-        print "    CSR and Key Create Complete"
-    #print csr
-    except Exception as e:
-        raise Exception("Create CSR Exception: {0}".format(e))
+def update_route(event):
+    route_fqdn = event['object']['spec']['host']
+    route_name = event['object']['metadata']['name']
 
     ipa_client = IPAClient(ipa_user=os.environ['IPA_USER'],
                            ipa_password=os.environ['IPA_PASSWORD'],
                            ipa_url=os.environ['IPA_URL'])
     ipa_client.create_host(route_fqdn)
-    certificate = ipa_client.create_cert(route_fqdn, os.environ['IPA_REALM'], key, csr)
+    certificate, key = ipa_client.create_cert(route_fqdn, os.environ['IPA_REALM'])
 
     try:
         #TODO: Update Route
-        print "Update Route Request: ", 'https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name)
+#        print "Update Route Request: ", 'https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name)
         req = requests.patch('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name),
                              headers={'Authorization': 'Bearer {0}'.format(os.environ['OS_TOKEN']), 'Content-Type':'application/strategic-merge-patch+json'},
                              data=json.dumps({'spec': {'tls': {'certificate': '-----BEGIN CERTIFICATE-----\n{0}\n-----END CERTIFICATE-----'.format(
@@ -67,6 +59,18 @@ def create_route(event):
     except Exception as e:
         print "Route update exception: ", e
 
+def delete_route(event):
+    route_fqdn = event['object']['spec']['host']
+    route_name = event['object']['metadata']['name']
+
+    try:
+        ipa_client = IPAClient(ipa_user=os.environ['IPA_USER'],
+                               ipa_password=os.environ['IPA_PASSWORD'],
+                               ipa_url=os.environ['IPA_URL'])
+        ipa_client.delete_host(route_fqdn)
+        print 'Route certificate for \'{0}\' deleted'.format(route_fqdn)
+    except Exception as e:
+        print "Certificate delete failed: ", e
 
 def main():
     watch_routes()
