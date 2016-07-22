@@ -32,23 +32,19 @@ class IPAClient(object):
             # CREATE HOST [event['object']['spec']['host']]
             create_host = self.session.post('{0}session/json'.format(self.ipa_url), headers=self.header,
                                             data=json.dumps({'id': 0, 'method': 'host_add', 'params': [host, {'force': True}]}), verify=False)
-            print "    Host Create Return Code: {0}".format(create_host.status_code)
         except Exception as e:
             raise Exception("Create Host Exception: {0}".format(e))
 
     def delete_host(self, host):
         try:
-            # CREATE HOST [event['object']['spec']['host']]
             resp = self.session.post('{0}session/json'.format(self.ipa_url), headers=self.header,
                                             data=json.dumps({'id': 0, 'method': 'host_del', 'params': [host, {'force': True}]}), verify=False)
-            print "    Host Delete Return Code: {0}".format(resp.status_code)
         except Exception as e:
             raise Exception("Delete Host Exception: {0}".format(e))
 
 
     def create_cert(self, host, realm):
         try:
-            #TODO: Create Private Key and CSR
             key = pkiutils.create_rsa_key(bits=2048,
                                           keyfile=None,
                                           format='PEM',
@@ -57,9 +53,6 @@ class IPAClient(object):
                                       "/CN={0}/C=US/O=Test organisation/".format(host),
                                       csrfilename=None,
                                       attributes=None)
-
-            print "    CSR and Key Create Complete"
-        #print csr
         except Exception as e:
             raise Exception("Create CSR Exception: {0}".format(e))
 
@@ -74,14 +67,7 @@ class IPAClient(object):
                                                                           'request_type': 'pkcs10',
                                                                           'add': False}]}),
                                              verify=False)
-
-            print "    Certificate Signing Return Code: {0}".format(cert_request.status_code)
             cert_resp = cert_request.json()
         except Exception as e:
             raise Exception("Cert Create Exception: {0}".format(e))
-
-        print "CERTIFICATE:\n-----BEGIN CERTIFICATE-----\n{0}\n-----END CERTIFICATE-----".format(
-            '\n'.join(cert_resp['result']['result']['certificate'][i:i+65] for i in xrange(0, len(cert_resp['result']['result']['certificate']), 65)))
-        print
-        print "KEY:\n {0}".format(key.exportKey('PEM'))
         return cert_resp['result']['result']['certificate'], key
