@@ -6,15 +6,6 @@ import json
 import pkiutils
 from OpenSSL import crypto
 
-s = requests.Session()
-
-# OpenShift API Token, taking from `oc whoami -t` "lTBiDnvYlHhuOl3C9Tj_Mb-FvL0hcMMONIua0E0D5CE"
-token = os.environ['OS_TOKEN']
-
-# OpenShift API Hostname:Port Combination "env1-master1.sbox.etl.practice.redhat.com:8443"
-openshift_api = os.environ['OS_API']
-namespace = os.environ['OS_NAMESPACE']
-
 #ipaurl="https://idm-1.etl.lab.eng.rdu2.redhat.com/ipa/"
 ipaurl = os.environ['IPA_URL']
 #realm="ETL.LAB.ENG.RDU2.REDHAT.COM"
@@ -22,22 +13,30 @@ realm = os.environ['IPA_REALM']
 ipa_user = os.environ['IPA_USER']
 ipa_password = os.environ['IPA_PASSWORD']
 
-print 'https://{0}/oapi/v1/namespaces/{1}/routes?watch=true'.format(openshift_api, namespace)
-
 class OpenShiftWatcher(object):
     def __init__(self, os_api_endpoint, os_resource, os_namespace, os_auth_token):
+        ''' os_auth_token generated from `oc whoami -t`
+
+            Example:
+            watcher = OpenShiftWatcher(os_api_endpoint="master1.example.com:8443",
+                                       os_resource="routes",
+                                       os_namespace="joe",
+                                       os_auth_token="lTBiDnvYlHhuOl3C9Tj_Mb-FvL0hcMMONIua0E0D5CE")
+        '''
         self.os_api_url = "https://{0}/oapi/v1/namespaces/{1}/{2}?watch=true".format(os_api_endpoint, os_namespace, os_resource)
         self.os_auth_token = os_auth_token
+        self.session = requests.Session()
 
     def stream(self):
         req = requests.Request("GET", self.os_api_url,
                                headers={'Authorization': 'Bearer {0}'.format(self.os_auth_token)},
                                params="").prepare()
 
-        resp = s.send(req, stream=True, verify=False)
+        resp = self.session.send(req, stream=True, verify=False)
         # TODO: Logging -> "Response"
 
         for line in resp.iter_lines():
+            print line
             if line:
                 try:
                     yield json.loads(line)
