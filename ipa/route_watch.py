@@ -10,13 +10,14 @@ from OpenShiftWatcher import OpenShiftWatcher
 
 logging.basicConfig(format="%(asctime)s %(message)s")
 logger = logging.getLogger('routewatcher')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 ca_trust = os.getenv('SSL_CA_TRUST', '/etc/ssl/certs/ca-bundle.trust.crt')
+need_cert_annotation = os.getenv('NEED_CERT_ANNOTATION', 'openshift.io/managed.cert')
 
 
 def watch_routes():
     watcher = OpenShiftWatcher(os_api_endpoint=os.environ['OS_API'],
-                               os_resource=os.environ['OS_RESOURCE'],
+                               os_resource='routes',
                                os_namespace=os.environ['OS_NAMESPACE'],
                                os_auth_token=os.environ['OS_TOKEN'])
 
@@ -24,26 +25,42 @@ def watch_routes():
         if type(event) is dict and 'type' in event:
             route_fqdn = event['object']['spec']['host']
             route_name = event['object']['metadata']['name']
-            if event['type'] == 'ADDED':
-                logger.info("[ROUTE ADDED]: {0}".format(route_fqdn))
-                logger.debug("[ROUTE ADDED]: {0}".format(event))
-                update_route(route_fqdn, route_name)
-            elif event['type'] == 'MODIFIED':
-                logger.info("[ROUTE MODIFIED]: {0}".format(route_fqdn))
-                logger.debug("[ROUTE MODIFIED]: {0}".format(event))
 
-                route = get_route(route_name)
-                if route.status_code == 404:
-                    delete_route(route_fqdn)
-                    logger.info("[ROUTE DELETED]: {0}".format(route_fqdn))
-                else:
-                    continue
+            if need_cert(event):
+                logger.info("[ROUTE NEEDS CERT]: {0}".format(route_fqdn))
+                if event['type'] == 'ADDED':
+                    logger.info("[ROUTE ADDED]: {0}".format(route_fqdn))
+                    logger.debug("[ROUTE ADDED]: {0}".format(event))
+                    update_route(route_fqdn, route_name)
+                elif event['type'] == 'MODIFIED':
+                    logger.info("[ROUTE MODIFIED]: {0}".format(route_fqdn))
+                    logger.debug("[ROUTE MODIFIED]: {0}".format(event))
+
+                    route = get_route(route_name)
+                    if route.status_code == 404:
+                        delete_route(route_fqdn)
+                        logger.info("[ROUTE DELETED]: {0}".format(route_fqdn))
+                    else:
+                        #TODO: Get modified cert route and make sure cert data matches hostname. If not, regenerate cert
+                        continue
 
 def get_route(route_name):
     req = requests.get('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name),
                        headers={'Authorization': 'Bearer {0}'.format(os.environ['OS_TOKEN']), 'Content-Type':'application/strategic-merge-patch+json'},
                        verify=ca_trust)
     return req
+
+def need_cert(event):
+    try:
+        route_annotation = event['object']['metadata']['annotations'][need_cert_annotation]
+        return route_annotation == "true"
+    except KeyError as e:
+        logger.debug("Got an event with no annotation, so nothing to do: {0}".format(event))
+        return False
+    else:
+        return False
+
+
 
 def update_route(route_fqdn, route_name):
     ipa_client = IPAClient(ipa_user=os.environ['IPA_USER'],
