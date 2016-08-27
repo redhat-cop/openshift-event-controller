@@ -12,14 +12,18 @@ logging.basicConfig(format="%(asctime)s %(message)s")
 logger = logging.getLogger('routewatcher')
 logger.setLevel(logging.DEBUG)
 ca_trust = os.getenv('SSL_CA_TRUST', '/etc/ssl/certs/ca-bundle.trust.crt')
+logger.debug("CA Trust: {0}".format(ca_trust))
 need_cert_annotation = os.getenv('NEED_CERT_ANNOTATION', 'openshift.io/managed.cert')
+logger.debug("{0}".format(os.environ))
+k8s_token=os.getenv('TOKEN', open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r').read())
 
 
 def watch_routes():
-    watcher = OpenShiftWatcher(os_api_endpoint=os.environ['OS_API'],
+    watcher = OpenShiftWatcher(os_api_endpoint=os.environ['KUBERNETES_SERVICE_HOST'],
                                os_resource='routes',
                                os_namespace=os.environ['OS_NAMESPACE'],
-                               os_auth_token=os.environ['OS_TOKEN'])
+                               os_auth_token=k8s_token,
+                               ca_trust=ca_trust)
 
     for event in watcher.stream():
         if type(event) is dict and 'type' in event:
@@ -90,7 +94,7 @@ def delete_route(route_fqdn):
         ipa_client.delete_host(route_fqdn)
         logger.info("[CERT DELETED]: {0}".format(route_fqdn))
     except Exception as e:
-        logger.info("[CERT DELETE ERROR]: Unable to delete certificate {0}.")
+        logger.info("[CERT DELETE ERROR]: Unable to delete certificate.")
         logger.debug("[CERT DELETE ERROR]: {0}".format(e))
 
 def main():
