@@ -16,12 +16,13 @@ logger.debug("CA Trust: {0}".format(ca_trust))
 need_cert_annotation = os.getenv('NEED_CERT_ANNOTATION', 'openshift.io/managed.cert')
 logger.debug("{0}".format(os.environ))
 k8s_token=os.getenv('TOKEN', open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r').read())
+k8s_namespace=os.getenv('OS_NAMESPACE', open('/var/run/secrets/kubernetes.io/serviceaccount/namespace','r').read())
 
 
 def watch_routes():
     watcher = OpenShiftWatcher(os_api_endpoint=os.environ['KUBERNETES_SERVICE_HOST'],
                                os_resource='routes',
-                               os_namespace=os.environ['OS_NAMESPACE'],
+                               os_namespace=k8s_namespace,
                                os_auth_token=k8s_token,
                                ca_trust=ca_trust)
 
