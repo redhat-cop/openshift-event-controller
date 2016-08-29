@@ -30,8 +30,8 @@ class OpenShiftWatcher(object):
         for line in resp.iter_lines():
             if line:
                 try:
-                    yield json.loads(line)
+                    yield json.loads(line.decode('utf-8'))
                     # TODO: Use the specific exception type here.
                     # TODO: Logging -> "No Json Object could be decoded."
                 except Exception as e:
-                    continue
+                    raise Exception("Watcher error: {0}".format(e))

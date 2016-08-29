@@ -3,7 +3,8 @@ FROM openshift/python-33-centos7
 USER root
 
 RUN yum -y install libffi-devel; \
-  scl enable python33 "pip install requests pkiutils pyopenssl"
+  scl enable python33 "pip install requests pkiutils pyopenssl"; \
+  yum clean all;
 
 RUN mkdir -p /opt/watcher
 
