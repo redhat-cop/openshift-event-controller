@@ -1,12 +1,11 @@
-FROM centos
+FROM openshift/python-33-centos7
+
+USER root
+
+RUN yum -y install libffi-devel; \
+  scl enable python33 "pip install requests pkiutils pyopenssl"
 
 RUN mkdir -p /opt/watcher
-
-RUN rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm; \
-    yum install -y python-devel python-requests python-pip openssl-devel gcc; \
-    pip install --upgrade pip; \
-    pip install pkiutils pyopenssl; \
-    yum clean all;
 
 COPY OpenShiftWatcher /opt/watcher/OpenShiftWatcher
 
@@ -18,4 +17,4 @@ RUN chown -R 1001:1001 /opt/watcher
 
 USER 1001
 
-ENTRYPOINT ["python", "/opt/watcher/ipa/route_watch.py"]
+ENTRYPOINT ["scl", "enable", "python33", "/opt/watcher/ipa/route_watch.py"]
