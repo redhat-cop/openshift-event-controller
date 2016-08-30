@@ -12,14 +12,23 @@ logging.basicConfig(format="%(asctime)s %(message)s")
 logger = logging.getLogger('routewatcher')
 logger.setLevel(logging.DEBUG)
 ca_trust = os.getenv('SSL_CA_TRUST', '/etc/ssl/certs/ca-bundle.trust.crt')
+logger.debug("CA Trust: {0}".format(ca_trust))
 need_cert_annotation = os.getenv('NEED_CERT_ANNOTATION', 'openshift.io/managed.cert')
+logger.debug(json.dumps(dict(os.environ), indent=2, sort_keys=True))
+k8s_token=os.getenv('TOKEN', open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r').read())
+k8s_namespace=os.getenv('OS_NAMESPACE', open('/var/run/secrets/kubernetes.io/serviceaccount/namespace','r').read())
+k8s_endpoint=os.environ['KUBERNETES_SERVICE_HOST']
+ipa_url=os.environ['IPA_URL']
+ipa_user=os.environ['IPA_USER']
+ipa_password=os.environ['IPA_PASSWORD']
 
 
 def watch_routes():
-    watcher = OpenShiftWatcher(os_api_endpoint=os.environ['OS_API'],
+    watcher = OpenShiftWatcher(os_api_endpoint=k8s_endpoint,
                                os_resource='routes',
-                               os_namespace=os.environ['OS_NAMESPACE'],
-                               os_auth_token=os.environ['OS_TOKEN'])
+                               os_namespace=k8s_namespace,
+                               os_auth_token=k8s_token,
+                               ca_trust=ca_trust)
 
     for event in watcher.stream():
         if type(event) is dict and 'type' in event:
@@ -37,16 +46,19 @@ def watch_routes():
                     logger.debug("[ROUTE MODIFIED]: {0}".format(event))
 
                     route = get_route(route_name)
-                    if route.status_code == 404:
+                    #TODO: Get modified cert route and make sure cert data matches hostname. If not, regenerate cert
+                    continue
+                elif event['type'] == 'DELETED':
                         delete_route(route_fqdn)
                         logger.info("[ROUTE DELETED]: {0}".format(route_fqdn))
-                    else:
-                        #TODO: Get modified cert route and make sure cert data matches hostname. If not, regenerate cert
-                        continue
+                else:
+                    logger.debug("[UNKNOWN EVENT TYPE]: {0}".format(event))
+            else:
+                logger.debug("No cert needed")
 
 def get_route(route_name):
-    req = requests.get('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name),
-                       headers={'Authorization': 'Bearer {0}'.format(os.environ['OS_TOKEN']), 'Content-Type':'application/strategic-merge-patch+json'},
+    req = requests.get('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(k8s_endpoint, k8s_namespace, route_name),
+                       headers={'Authorization': 'Bearer {0}'.format(k8s_token), 'Content-Type':'application/strategic-merge-patch+json'},
                        verify=ca_trust)
     return req
 
@@ -58,21 +70,22 @@ def need_cert(event):
         logger.debug("Got an event with no annotation, so nothing to do: {0}".format(event))
         return False
     else:
+        logger.debug("Unknown error")
         return False
 
 
 
 def update_route(route_fqdn, route_name):
-    ipa_client = IPAClient(ipa_user=os.environ['IPA_USER'],
-                           ipa_password=os.environ['IPA_PASSWORD'],
-                           ipa_url=os.environ['IPA_URL'])
+    ipa_client = IPAClient(ipa_user=ipa_user,
+                           ipa_password=ipa_password,
+                           ipa_url=ipa_url)
     ipa_client.create_host(route_fqdn)
     certificate, key = ipa_client.create_cert(route_fqdn, os.environ['IPA_REALM'])
     logger.info("[CERT CREATED]: {0}".format(route_fqdn))
 
     try:
-        req = requests.patch('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(os.environ['OS_API'], os.environ['OS_NAMESPACE'], route_name),
-                             headers={'Authorization': 'Bearer {0}'.format(os.environ['OS_TOKEN']), 'Content-Type':'application/strategic-merge-patch+json'},
+        req = requests.patch('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(k8s_endpoint, k8s_namespace, route_name),
+                             headers={'Authorization': 'Bearer {0}'.format(k8s_token), 'Content-Type':'application/strategic-merge-patch+json'},
                              data=json.dumps({'spec': {'tls': {'certificate': '-----BEGIN CERTIFICATE-----\n{0}\n-----END CERTIFICATE-----'.format(
                                  '\n'.join(certificate[i:i+65] for i in xrange(0, len(certificate), 65))),
                                                                'key': '{0}'.format(key.exportKey('PEM'))}}}),
@@ -84,13 +97,13 @@ def update_route(route_fqdn, route_name):
 
 def delete_route(route_fqdn):
     try:
-        ipa_client = IPAClient(ipa_user=os.environ['IPA_USER'],
-                               ipa_password=os.environ['IPA_PASSWORD'],
-                               ipa_url=os.environ['IPA_URL'])
+        ipa_client = IPAClient(ipa_user=ipa_user,
+                               ipa_password=ipa_password,
+                               ipa_url=ipa_url)
         ipa_client.delete_host(route_fqdn)
         logger.info("[CERT DELETED]: {0}".format(route_fqdn))
     except Exception as e:
-        logger.info("[CERT DELETE ERROR]: Unable to delete certificate {0}.")
+        logger.info("[CERT DELETE ERROR]: Unable to delete certificate.")
         logger.debug("[CERT DELETE ERROR]: {0}".format(e))
 
 def main():
