@@ -15,8 +15,8 @@ ca_trust = os.getenv('SSL_CA_TRUST', '/etc/ssl/certs/ca-bundle.trust.crt')
 logger.debug("CA Trust: {0}".format(ca_trust))
 need_cert_annotation = os.getenv('NEED_CERT_ANNOTATION', 'openshift.io/managed.cert')
 logger.debug(json.dumps(dict(os.environ), indent=2, sort_keys=True))
-k8s_token=os.getenv('TOKEN', open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r').read())
-k8s_namespace=os.getenv('OS_NAMESPACE', open('/var/run/secrets/kubernetes.io/serviceaccount/namespace','r').read())
+k8s_token=os.getenv('TOKEN', open('/var/run/secrets/kubernetes.io/serviceaccount/token', 'r').read().strip())
+k8s_namespace=os.getenv('OS_NAMESPACE', open('/var/run/secrets/kubernetes.io/serviceaccount/namespace','r').read().strip())
 k8s_endpoint=os.environ['KUBERNETES_SERVICE_HOST']
 ipa_url=os.environ['IPA_URL']
 ipa_user=os.environ['IPA_USER']
