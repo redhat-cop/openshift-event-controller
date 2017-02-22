@@ -5,26 +5,24 @@ import requests
 import json
 import logging
 import signal
+from config import WatcherConfig
 from OpenShiftWatcher import OpenShiftWatcher
+
+config = WatcherConfig()
 
 logging.basicConfig(format="%(asctime)s %(message)s")
 logger = logging.getLogger('watcher')
-logger.setLevel(logging.INFO)
-ca_trust = os.getenv('SSL_CA_TRUST', '/etc/ssl/certs/ca-bundle.trust.crt')
-logger.debug("CA Trust: {0}".format(ca_trust))
-need_cert_annotation = os.getenv('NEED_CERT_ANNOTATION', 'openshift.io/managed.cert')
+logger.setLevel(config.LOG_LEVEL)
 logger.debug(json.dumps(dict(os.environ), indent=2, sort_keys=True))
-k8s_token=os.getenv('OS_TOKEN')
-k8s_namespace=os.getenv('OS_NAMESPACE')
-k8s_endpoint=os.environ['OS_API']
+logger.debug("CA Trust: {0}".format(config.k8s_ca))
 
 def watch(resource_type, plugin_name, *args, **kwargs):
     plugin = load_plugin(plugin_name)
-    watcher = OpenShiftWatcher(os_api_endpoint=k8s_endpoint,
+    watcher = OpenShiftWatcher(os_api_endpoint=config.k8s_endpoint,
                                os_resource=resource_type,
-                               os_namespace=k8s_namespace,
-                               os_auth_token=k8s_token,
-                               ca_trust=ca_trust)
+                               os_namespace=config.k8s_namespace,
+                               os_auth_token=config.k8s_token,
+                               ca_trust=config.k8s_ca)
 
     for event in watcher.stream():
         if type(event) is dict and 'type' in event:
@@ -39,7 +37,7 @@ def load_plugin(name):
     return mod
 
 def main():
-    resource_type = os.getenv('OS_RESOURCE')
+    resource_type = os.getenv('K8S_RESOURCE')
     plugin_name = os.getenv('WATCHER_PLUGIN', 'simple')
     watch(resource_type, plugin_name)
 
