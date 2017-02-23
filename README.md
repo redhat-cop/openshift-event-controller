@@ -7,10 +7,28 @@ The OpenShift Event Watcher is a utility used as a service integrator for OpenSh
 Log into OpenShift and then run a command like the following
 
 ```
-OS_TOKEN=`oc whoami -t` OS_API='master.example.com:8443' OS_NAMESPACE=event-watcher SSL_CA_TRUST=./kubernetes.io/serviceaccount/ca.crt OS_RESOURCE=routes python watch.py
+K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-watcher ENV_K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python watch.py
 ```
 
 You should see a log of data about the Namespace you passed in.
+
+## Configuration
+
+The Event Watcher can be configured via either Environment variables or an ini file. A sample config file can be found at `conf/config.ini.sample`. To run the watcher with a config file, run:
+
+`python3 watch.py --config conf/config.ini`
+
+### Global Configuration Options
+
+| Environment Variable | ini Variable | Required | Description |
+| ------------- | ------------- |
+| K8S_API_ENDPOINT | k8s_api_endpoint | True | OpenShift/Kubernetes API hostname:port |
+| K8S_TOKEN  | k8s_token | True; will be pulled from Pod | Login token (`oc whoami -t`) |
+| K8S_NAMESPACE | k8s_namespace | True; will be pulled from Pod | Namespace you want to listen watch resources in |
+| K8S_RESOURCE | k8s_resource | True | The `Kind` of the Kubernetes or OpenShift resource |
+| K8S_CA | k8s_ca | False; will be pulled from Pod | Path to the `ca.crt` file for the cluster |
+| LOG_LEVEL | log_level | False | Logging threshold to be output. Options: DEBUG, INFO, WARNING, ERROR, CRITICAL; Default: INFO
+| WATCHER_PLUGIN | watcher_plugin | False | Name of the Plugin you want to run in the Watcher. Default: 'simple' |
 
 ## Plugin Architecture
 

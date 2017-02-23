@@ -1,0 +1,9 @@
+[global]
+k8s_resource=
+k8s_ca=
+k8s_namespace=
+k8s_api_endpoint=
+k8s_token=
+watcher_plugin=
+
+[plugin_simple]
