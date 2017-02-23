@@ -21,13 +21,13 @@ class WatcherConfig(object):
             # Get Plugin so we know how to parse the rest of the args
             self.plugin = self.getPlugin()
 
-        self.log_level = self.getParam(constants.ENV_LOG_LEVEL, '', 'INFO')
+            self.log_level = self.getParam(constants.ENV_LOG_LEVEL, '', 'INFO')
 
-        self.k8s_token = self.getParam(constants.ENV_K8S_TOKEN, constants.FILE_K8S_TOKEN)
-        self.k8s_namespace = self.getParam(constants.ENV_K8S_NAMESPACE, constants.FILE_K8S_NAMESPACE)
-        self.k8s_endpoint = self.getParam(constants.ENV_K8S_API)
-        self.k8s_ca = self.getParam(constants.ENV_K8S_CA)
-        self.k8s_resource = self.getParam(constants.ENV_K8S_RESOURCE)
+            self.k8s_token = self.getParam(constants.ENV_K8S_TOKEN, constants.FILE_K8S_TOKEN)
+            self.k8s_namespace = self.getParam(constants.ENV_K8S_NAMESPACE, constants.FILE_K8S_NAMESPACE)
+            self.k8s_endpoint = self.getParam(constants.ENV_K8S_API)
+            self.k8s_ca = self.getParam(constants.ENV_K8S_CA)
+            self.k8s_resource = self.getParam(constants.ENV_K8S_RESOURCE)
 
     def getPlugin(self):
         try:

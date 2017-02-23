@@ -22,12 +22,6 @@ class EventWatcher(object):
         self.logger.debug("CA Trust: {0}".format(self.config.k8s_ca))
         self.logger.info("Loading config file from {0}".format(self.config.config_file))
 
-        # Validate config
-        if not self.config.validated['is_valid']:
-            log_level = self.config.validated['log_level']
-            log(self.config.validated['reason'], log_level)
-            sys.exit(1)
-
         self.watch(self.config.k8s_resource, self.config.plugin)
 
     def watch(self, resource_type, plugin_name, *args, **kwargs):
@@ -45,6 +39,13 @@ class EventWatcher(object):
 
     def getConfig(self):
         config = WatcherConfig()
+
+        # Check that args are properly set
+        if not config.validated['is_valid']:
+            log_level = config.validated['log_level']
+            self.log(config.validated['reason'], log_level)
+            sys.exit(1)
+
         try:
             config.validateConfig()
         except Error as error:
