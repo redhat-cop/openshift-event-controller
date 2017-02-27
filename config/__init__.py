@@ -16,7 +16,8 @@ class WatcherConfig(object):
         self.validated = self.validateArgs(args)
         if self.validated['is_valid']:
             self.config = configparser.ConfigParser()
-            self.config.read(self.config_file)
+            if self.config_file is not None:
+                self.config.read(self.config_file)
 
             # Get Plugin so we know how to parse the rest of the args
             self.plugin = self.getPlugin()
@@ -33,14 +34,18 @@ class WatcherConfig(object):
         try:
             return os.environ[constants.ENV_PLUGIN.upper()]
         except KeyError:
-            return self.config['global'][constants.ENV_PLUGIN.lower()]
+            try:
+                return self.config['global'][constants.ENV_PLUGIN.lower()]
+            except KeyError:
+                return constants.DEFAULT_WATCHER_PLUGIN
 
     def getParam(self, env = '', file = '', default = ''):
         try:
             return os.environ[env.upper()]
         except KeyError:
             try:
-                return self.config['global'][env.lower()]
+                if 'global' in self.config:
+                    return self.config['global'][env.lower()]
             except KeyError:
                 try:
                     return open(file, 'r').read().strip()
@@ -49,7 +54,7 @@ class WatcherConfig(object):
 
     def validateArgs(self, args):
         validated = {}
-        if not os.path.exists(self.config_file):
+        if (self.config_file is not None) and (not os.path.exists(self.config_file)):
             validated['is_valid'] = False
             validated['reason'] = 'Config file not found: {0}'.format(self.config_file)
             validated['log_level'] = 'CRITICAL'
