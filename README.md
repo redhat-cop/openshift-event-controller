@@ -7,7 +7,7 @@ The OpenShift Event Watcher is a utility used as a service integrator for OpenSh
 Log into OpenShift and then run a command like the following
 
 ```
-K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-watcher ENV_K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python watch.py
+K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-watcher K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python3 watch.py
 ```
 
 You should see a log of data about the Namespace you passed in.

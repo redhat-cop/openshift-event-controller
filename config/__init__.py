@@ -39,6 +39,12 @@ class WatcherConfig(object):
             except KeyError:
                 return constants.DEFAULT_WATCHER_PLUGIN
 
+    def getPluginConfig(self):
+        if self.config_file is not None:
+            return self.config[self.plugin]
+        else:
+            return {}
+
     def getParam(self, env = '', file = '', default = ''):
         try:
             return os.environ[env.upper()]
