@@ -41,7 +41,7 @@ class WatcherConfig(object):
 
     def getPluginConfig(self):
         if self.config_file is not None:
-            return self.config[self.plugin]
+            return self.config["plugin_{0}".format(self.plugin)]
         else:
             return {}
 
