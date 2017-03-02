@@ -39,14 +39,14 @@ A plugin is invoked like so:
 ```python
   plugin = load_plugin(plugin_name)
   for k8s_event in getEvents():
-    result,level = plugin.handle_event(k8s_event, *args, **kwargs)
+    result,level = plugin.handle_event(self, k8s_event, self.config.getPluginConfig(), *args, **kwargs)
     log(result, level)
 ```
 
 Let's look at a very simple plugin, called `plugin_simple`. This plugin is a single file init file loaded from a directory, `plugin_simple/__init__.py`:
 
-```
-def handle_event(event):
+```python
+def handle_event(watcher, event, config):
     message = "Kind: {0}; Name: {1}".format(event['object']['kind'], event['object']['metadata']['name'])
     log_level = "INFO"
     return message, log_level
