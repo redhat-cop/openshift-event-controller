@@ -10,6 +10,6 @@ watcher_plugin=
 
 
 [plugin_dns]
-openshift_router_ipv4=    # IP address for the OpenShift router pod, used for DNS entries
+application_router_ip=    # IP address for the entry point to the OpenShift application - e.g.: load balancer, router, etc.
 dns_server=               # DNS server holding records
 dns_key_file=             # nsupdate key file

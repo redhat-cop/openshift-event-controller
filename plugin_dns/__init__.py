@@ -60,10 +60,10 @@ def remove_dns(event, config):
 
 
 def add_dns(event, config):
-    openshift_router_ipv4 = config.get('openshift_router_ipv4')
+    application_router_ip = config.get('application_router_ip')
 
     dns_a_record = event['object']['spec']['host']
-    action = "update add %s 180  A %s\n" % (dns_a_record, openshift_router_ipv4)
+    action = "update add %s 180  A %s\n" % (dns_a_record, application_router_ip)
     modify_dns(action, config)
 
 
