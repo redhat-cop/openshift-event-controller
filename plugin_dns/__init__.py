@@ -4,7 +4,7 @@ import requests
 import json
 import subprocess
 
-def handle_event(self, event, config):
+def handle_event(watcher, event, config):
     message = "Kind: {0}; Name: {1}; Event Type:{2};".format(event['object']['kind'], event['object']['metadata']['name'], event['type'])
     log_level = config.get('message_log_level','INFO')
 
@@ -17,7 +17,7 @@ def handle_event(self, event, config):
             remove_dns(event, config)
             message = 'DNS record \'{0}\' removed for route \'{1}\''.format(event['object']['spec']['host'], event['object']['metadata']['name'])
         elif event['type'] == 'MODIFIED':
-            route = get_route(self, event, config)
+            route = get_route(watcher, event, config)
             if route.status_code == 404:
                 remove_dns(event, config)
                 message = 'DNS record \'{0}\' removed for route \'{1}\''.format(event['object']['spec']['host'], event['object']['metadata']['name'])
@@ -27,12 +27,12 @@ def handle_event(self, event, config):
     return message, log_level
 
 
-def get_route(self, event, config):
+def get_route(watcher, event, config):
     route_name = event['object']['metadata']['name']
-    k8s_endpoint = self.config.k8s_endpoint
-    k8s_namespace = self.config.k8s_namespace
-    k8s_token = self.config.k8s_token
-    k8s_ca = self.config.k8s_ca
+    k8s_endpoint = watcher.config.k8s_endpoint
+    k8s_namespace = watcher.config.k8s_namespace
+    k8s_token = watcher.config.k8s_token
+    k8s_ca = watcher.config.k8s_ca
 
     req = requests.get('https://{0}/oapi/v1/namespaces/{1}/routes/{2}'.format(k8s_endpoint, k8s_namespace, route_name),
                        headers={'Authorization': 'Bearer {0}'.format(k8s_token), 'Content-Type':'application/strategic-merge-patch+json'},
