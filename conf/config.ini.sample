@@ -7,3 +7,9 @@ k8s_token=
 watcher_plugin=
 
 [plugin_simple]
+
+
+[plugin_dns]
+openshift_router_ipv4=    # IP address for the OpenShift router pod, used for DNS entries
+dns_server=               # DNS server holding records
+dns_key_file=             # nsupdate key file
