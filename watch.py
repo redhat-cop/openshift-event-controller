@@ -34,7 +34,7 @@ class EventWatcher(object):
 
         for event in watcher.stream():
             if type(event) is dict and 'type' in event:
-                result,level = plugin.handle_event(event, self.config.getPluginConfig(), *args, **kwargs)
+                result,level = plugin.handle_event(self, event, self.config.getPluginConfig(), *args, **kwargs)
                 self.log(result, level)
 
     def getConfig(self):
