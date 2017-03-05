@@ -11,5 +11,6 @@ watcher_plugin=
 
 [plugin_dns]
 application_router_ip=    # IP address for the entry point to the OpenShift application - e.g.: load balancer, router, etc.
+resolv_conf=              # Optional custom resolv.conf file to use for custom resolvers
 dns_server=               # DNS server holding records
 dns_key_file=             # nsupdate key file
