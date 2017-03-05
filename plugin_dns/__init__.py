@@ -10,14 +10,17 @@ import dns.update
 import dns.tsigkeyring
 
 def handle_event(watcher, event, config):
-    message = "Kind: {0}; Name: {1}; Event Type:{2};".format(
-                  event['object']['kind'],
-                  event['object']['metadata']['name'],
+    logger = watcher.logger
+    message = "Event received ({0}), but no action processed".format(
                   event['type']
               )
-    log_level = config.get('message_log_level','INFO')
-    logger = watcher.logger
 
+    logger.debug("Event Received: Kind {0}; Name {1}; Type{2};"
+                 .format(event['object']['kind'],
+                         event['object']['metadata']['name'],
+                         event['type']
+                        )
+                )
 
     if type(event) is dict and 'type' in event:
         if event['type'] == 'ADDED':
@@ -41,11 +44,8 @@ def handle_event(watcher, event, config):
                                   event['object']['spec']['host'],
                                   event['object']['metadata']['name']
                               )
-            else:
-                message = 'Route \'{0}\' modified, but no action taken.'.format(
-                              event['object']['metadata']['name']
-                          )
 
+    log_level = config.get('message_log_level','INFO')
     return message, log_level
 
 
