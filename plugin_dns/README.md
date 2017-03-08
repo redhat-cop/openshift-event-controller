@@ -41,3 +41,12 @@ Once the above requirements are met, and the below listed configuration has been
 | dns_server | True | The target DNS server (FQDN or IP) |
 | dns_key_file | True | The DNS server key used with nsupdate |
 
+
+## Developer Local Setup
+
+### Dependencies
+
+Install the following python modules
+```
+sudo pip3 install dnspython
+```
