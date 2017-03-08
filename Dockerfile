@@ -1,22 +1,23 @@
-FROM openshift/python-33-centos7
+FROM centos/python-35-centos7
 
 USER root
 
+ENV PATH=/opt/app-root/bin:/opt/rh/rh-python35/root/usr/bin:/opt/app-root/src/.local/bin/:/opt/app-root/src/bin:/opt/app-root/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    LD_LIBRARY_PATH=/opt/rh/rh-python35/root/usr/lib64
+
 RUN yum -y install libffi-devel; \
-  scl enable python33 "pip install --upgrade pip"; \
-  scl enable python33 "pip install requests pkiutils pyopenssl"; \
+  pip install --upgrade pip; \
+  pip install requests pkiutils pyopenssl; \
   yum clean all;
 
-RUN mkdir -p /opt/watcher
+RUN mkdir -p /opt/event-watcher
 
-COPY OpenShiftWatcher /opt/watcher/OpenShiftWatcher
+COPY ./src/ /opt/event-watcher/
 
-COPY IPAClient /opt/watcher/IPAClient
+COPY ./bin/ /opt/event-watcher/bin
 
-COPY ipa /opt/watcher/ipa
-
-RUN chown -R 1001:1001 /opt/watcher
+RUN chown -R 1001:1001 /opt/event-watcher
 
 USER 1001
 
-ENTRYPOINT ["scl", "enable", "python33", "/opt/watcher/ipa/route_watch.py"]
+ENTRYPOINT ["/opt/event-watcher/bin/start.sh"]

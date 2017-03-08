@@ -20,6 +20,8 @@ class EventWatcher(object):
         self.logger.setLevel(self.config.log_level)
         self.logger.debug(json.dumps(dict(os.environ), indent=2, sort_keys=True))
         self.logger.debug("CA Trust: {0}".format(self.config.k8s_ca))
+        self.logger.debug("Namespace: {0}".format(self.config.k8s_namespace))
+        self.logger.debug("Token: {0}".format(self.config.k8s_token))
         self.logger.info("Loading config file from {0}".format(self.config.config_file))
 
         self.watch(self.config.k8s_resource, self.config.plugin)
