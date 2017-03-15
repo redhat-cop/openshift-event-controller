@@ -61,7 +61,7 @@ def update_route(route_fqdn, route_name, config, logger, watcher):
                     ipa_user = config.get('ipa_user'),
                     ipa_password = config.get('ipa_password'),
                     ipa_url = config.get('ipa_url'),
-                    ca_trust = config.get('ca_trust', False)
+                    ca_trust = config.get('ipa_ca_cert', False)
                 )
     ipa_client.create_host(route_fqdn)
     certificate, key = ipa_client.create_cert(route_fqdn, config.get('ipa_realm'))
@@ -81,7 +81,7 @@ def delete_route(route_fqdn, config, logger):
                 ipa_user = config.get('ipa_user'),
                 ipa_password = config.get('ipa_password'),
                 ipa_url = config.get('ipa_url'),
-                ca_trust = config.get('ca_trust', False)
+                ca_trust = config.get('ipa_ca_cert', False)
             )
     ipa_client.delete_host(route_fqdn)
     logger.info("[CERT DELETED]: {0}".format(route_fqdn))

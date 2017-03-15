@@ -27,12 +27,12 @@ python3 watch.py --config conf/config.ini
 
 | ini Variable | Required | Description |
 | ------------- | ------------- | -------------|
-| need_cert_annotation | false | Name of the annotation used to designate routes that need certificates |
+| need_cert_annotation | true | Name of the annotation used to designate routes that need certificates |
 | ipa_user | true | IPA/IDM user with permissions to create hosts & certificates |
 | ipa_password | true | IPA/IDM password |
 | ipa_url | true | Url to IPA/IDM API (include path) |
 | ipa_realm | true | Realm under which new hosts/certs should be created |
-| ca_trust | false | CA certificate for IPA server trust |
+| ipa_ca_cert | false | CA certificate for IPA server trust |
 ## Developer local Setup
 
 ### Dependencies
@@ -48,6 +48,11 @@ sudo dnf install python3-devel
 
 Then, install the following python modules
 ```
+sudo pip3 install requests
+sudo pip3 install pyOpenSSL
 sudo pip3 install cryptography
 sudo pip3 install pkiutils
+sudo pip3 install six
+sudo pip3 install traceback
+sudo pip3 install json
 ```
