@@ -40,10 +40,11 @@ python3 watch.py --config conf/config.ini
 First, install the following packages:
 
 ```
-sudo dnf install "C Development Tools and Libraries"
+sudo dnf group install "C Development Tools and Libraries"
 sudo dnf install openssl-devel
 sudo dnf install python3-pip
 sudo dnf install python3-devel
+sudo dnf install redhat-rpm-config
 ```
 
 Then, install the following python modules
