@@ -34,17 +34,17 @@ log_level=INFO
 
 [plugin_ipa]
 need_cert_annotation=openshift.io/managed.cert
-ipa_user=watcher_test
-ipa_password=watcher_test123
-ipa_url=https://idm-1.etl.rht-labs.com/ipa/
-ipa_realm=ETL.RHT-LABS.COM
+ipa_user=ldap-user
+ipa_password=mypassword
+ipa_url=https://idm.example.com/ipa/
+ipa_realm=MYREALM.EXAMPLE.COM
 ca_trust=/etc/ldap-ca/ca.crt
 
 [plugin_dns]
-application_router_ip=10.9.50.144
-dns_server=10.9.50.189
-dns_key_file=/home/esauer/casl-casl.example.com.key
-resolv_conf=/home/esauer/resolv.conf
+application_router_ip=192.168.2.3
+dns_server=192.168.5.6
+dns_key_file=/path/to/cloudapps.example.com.key
+resolv_conf=/path/to/tmp_resolv.conf
 ```
 
 ### Global Config Options
