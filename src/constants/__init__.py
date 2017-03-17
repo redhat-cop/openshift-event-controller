@@ -9,7 +9,7 @@ ENV_PLUGIN           = 'WATCHER_PLUGIN'
 DEFAULT_K8S_NAMESPACE   = '/var/run/secrets/kubernetes.io/serviceaccount/namespace'
 DEFAULT_K8S_TOKEN       = '/var/run/secrets/kubernetes.io/serviceaccount/token'
 DEFAULT_K8S_CA       = '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
-DEFAULT_K8S_API      = 'kubernetes.svc.default.cluster.local'
+DEFAULT_K8S_API      = 'kubernetes.default.svc.cluster.local'
 DEFAULT_WATCHER_PLUGIN       = 'simple'
 
 DESCRIPTION          = 'OpenShift/kubernetes API Watcher Utility. Used to integrate with Third part systems'
