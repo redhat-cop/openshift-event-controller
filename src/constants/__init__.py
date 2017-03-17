@@ -11,5 +11,6 @@ DEFAULT_K8S_TOKEN       = '/var/run/secrets/kubernetes.io/serviceaccount/token'
 DEFAULT_K8S_CA       = '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
 DEFAULT_K8S_API      = 'kubernetes.default.svc.cluster.local'
 DEFAULT_WATCHER_PLUGIN       = 'simple'
+DEFAULT_LOG_LEVEL   = 'INFO'
 
 DESCRIPTION          = 'OpenShift/kubernetes API Watcher Utility. Used to integrate with Third part systems'

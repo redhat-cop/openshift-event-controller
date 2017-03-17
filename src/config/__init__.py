@@ -22,7 +22,7 @@ class WatcherConfig(object):
             # Get Plugin so we know how to parse the rest of the args
             self.plugin = self.getPlugin()
 
-            self.log_level = self.getParam(constants.ENV_LOG_LEVEL, 'INFO')
+            self.log_level = self.getParam(constants.ENV_LOG_LEVEL, '', constants.DEFAULT_LOG_LEVEL)
 
             self.k8s_token = self.getParam(constants.ENV_K8S_TOKEN, constants.DEFAULT_K8S_TOKEN)
             self.k8s_namespace = self.getParam(constants.ENV_K8S_NAMESPACE, constants.DEFAULT_K8S_NAMESPACE)
@@ -51,7 +51,9 @@ class WatcherConfig(object):
         except KeyError:
             try:
                 if 'global' in self.config:
-                    return self.config['global'][env.lower()]
+                    if self.config['global'].get(env.lower()) == None:
+                        raise KeyError('No Log Level Set')
+                    return self.config['global'].get(env.lower())
             except KeyError:
                 try:
                     return open(file, 'r').read().strip()
