@@ -36,18 +36,6 @@ The Event Watcher can be configured via either Environment variables or an ini f
 
 `python3 watch.py --config conf/config.ini`
 
-### Global Configuration Options
-
-| Environment Variable | ini Variable | Required | Description |
-| ------------- | ------------- |
-| K8S_API_ENDPOINT | k8s_api_endpoint | True | OpenShift/Kubernetes API hostname:port |
-| K8S_TOKEN  | k8s_token | True; will be pulled from Pod | Login token (`oc whoami -t`) |
-| K8S_NAMESPACE | k8s_namespace | True; will be pulled from Pod | Namespace you want to listen watch resources in |
-| K8S_RESOURCE | k8s_resource | True | The `Kind` of the Kubernetes or OpenShift resource |
-| K8S_CA | k8s_ca | False; will be pulled from Pod | Path to the `ca.crt` file for the cluster |
-| LOG_LEVEL | log_level | False | Logging threshold to be output. Options: DEBUG, INFO, WARNING, ERROR, CRITICAL; Default: INFO
-| WATCHER_PLUGIN | watcher_plugin | False | Name of the Plugin you want to run in the Watcher. Default: 'simple' |
-
 ## Plugin Architecture
 
 The event watcher is designed to be pluggable. New plugins can be created by simply creating a python module that implements a single `handle_event()` method, which takes a single `dict` object as an argument (the `event` object).
