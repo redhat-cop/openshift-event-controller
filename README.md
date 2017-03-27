@@ -50,7 +50,7 @@ resolv_conf=/path/to/tmp_resolv.conf
 ### Global Config Options
 
 | Environment Variable | ini Variable | Required | Description |
-| ------------- | ------------- |
+| ------------- | ------------- | -------| --------- |
 | K8S_API_ENDPOINT | k8s_api_endpoint | True | OpenShift/Kubernetes API hostname:port |
 | K8S_TOKEN  | k8s_token | True; will be pulled from Pod | Login token (`oc whoami -t`) |
 | K8S_NAMESPACE | k8s_namespace | True; will be pulled from Pod | Namespace you want to listen watch resources in |
