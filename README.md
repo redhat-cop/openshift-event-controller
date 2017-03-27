@@ -1,6 +1,6 @@
-# OpenShift Event Watcher
+# OpenShift Event Controller
 
-The OpenShift Event Watcher is a utility used as a service integrator for OpenShift and other third party components.
+The OpenShift Event Controller is a utility used as a service integrator for OpenShift and other third party components.
 
 ## Getting Started
 
@@ -19,7 +19,7 @@ We currently support the following plugins:
 
 ## Configuration
 
-The Event Watcher can be configured either through Environment Variables or a Config Files. We recommend the config file.
+The event controller can be configured either through Environment Variables or a Config Files. We recommend the config file.
 
 A sample config file looks like:
 
@@ -50,7 +50,7 @@ resolv_conf=/path/to/tmp_resolv.conf
 ### Global Config Options
 
 | Environment Variable | ini Variable | Required | Description |
-| ------------- | ------------- |
+| ------------- | ------------- | -------| --------- |
 | K8S_API_ENDPOINT | k8s_api_endpoint | True | OpenShift/Kubernetes API hostname:port |
 | K8S_TOKEN  | k8s_token | True; will be pulled from Pod | Login token (`oc whoami -t`) |
 | K8S_NAMESPACE | k8s_namespace | True; will be pulled from Pod | Namespace you want to listen watch resources in |

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z ${CONFIG_FILE+x} ]; then
-  python /opt/event-watcher/watch.py
+  python /opt/event-controller/watch.py
 else
-  python /opt/event-watcher/watch.py --config ${CONFIG_FILE}
+  python /opt/event-controller/watch.py --config ${CONFIG_FILE}
 fi

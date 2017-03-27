@@ -1,6 +1,6 @@
-# Event Watcher Dev Guide
+# Event Controller Dev Guide
 
-The OpenShift Event Watcher is a utility used as a service integrator for OpenShift and other third party components
+The OpenShift Event Controller is a utility used as a service integrator for OpenShift and other third party components
 
 ## Setup Dev Environment
 
@@ -25,7 +25,7 @@ echo QUIT | openssl s_client -showcerts -connect <kubernetes-master-hostname>:84
 
 
 ```
-K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-watcher K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python3 watch.py
+K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-controller K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python3 watch.py
 ```
 
 You should see a log of data about the Namespace you passed in.
@@ -33,24 +33,24 @@ You should see a log of data about the Namespace you passed in.
 ## Testing The Image Locally
 
 ```
-docker run -v /home/esauer/src/oc-watcher-skel/kubernetes.io/:/etc/config:z -v /home/esauer/src/oc-watcher-skel/kubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/config/config.ini event-watcher
+docker run -v /home/esauer/src/oc-watcher-skel/kubernetes.io/:/etc/config:z -v /home/esauer/src/oc-watcher-skel/kubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/config/config.ini event-controller
 ```
 
 If you want to debug the running image itself:
 
 ```
-docker run -it --entrypoint=/bin/bash -v /path/to/kubernetes.io/conf:/etc/watcher/:z -v /path/tokubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/watcher/config.ini event-watcher
+docker run -it --entrypoint=/bin/bash -v /path/to/kubernetes.io/conf:/etc/watcher/:z -v /path/tokubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/watcher/config.ini event-controller
 ```
 
 ## Configuration
 
-The Event Watcher can be configured via either Environment variables or an ini file. A sample config file can be found at `conf/config.ini.sample`. To run the watcher with a config file, run:
+The event controller can be configured via either Environment variables or an ini file. A sample config file can be found at `conf/config.ini.sample`. To run the watcher with a config file, run:
 
 `python3 watch.py --config conf/config.ini`
 
 ## Plugin Architecture
 
-The event watcher is designed to be pluggable. New plugins can be created by simply creating a python module that implements a single `handle_event()` method, which takes a single `dict` object as an argument (the `event` object).
+The event controller is designed to be pluggable. New plugins can be created by simply creating a python module that implements a single `handle_event()` method, which takes a single `dict` object as an argument (the `event` object).
 
 A plugin is invoked like so:
 

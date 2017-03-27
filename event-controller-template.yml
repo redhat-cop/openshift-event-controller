@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: event-watcher
+  template: event-controller
 metadata:
   annotations:
-  name: event-watcher
+  name: event-controller
 objects:
 - apiVersion: v1
   kind: ImageStream
@@ -160,11 +160,11 @@ parameters:
 - description: The name for the application.
   name: APPLICATION_NAME
   required: true
-  value: event-watcher
+  value: event-controller
 - description: Source code repo URL
   name: SOURCE_CODE_URL
   required: true
-  value: https://github.com/redhat-cop/event-watcher.git
+  value: https://github.com/redhat-cop/openshift-event-controller.git
 - description: Source code branch
   name: SOURCE_CODE_REF
   required: true
