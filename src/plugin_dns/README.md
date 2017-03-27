@@ -23,7 +23,7 @@ Once the above requirements are met, and the below listed configuration has been
 ### Global Configuration Options
 
 | Environment Variable | ini Variable | Required | Description |
-| ------------- | ------------- |
+| ------------- | ------------- | ------------- | ------------- |
 | K8S_API_ENDPOINT | k8s_api_endpoint | True | OpenShift/Kubernetes API hostname:port |
 | K8S_TOKEN  | k8s_token | True | Login token (`oc whoami -t`) |
 | K8S_NAMESPACE | k8s_namespace | True | Namespace you want to watch for route changes in |
@@ -35,7 +35,7 @@ Once the above requirements are met, and the below listed configuration has been
 ### DNS Plugin Configuration Options
 
 | ini Variable | Required | Description |
-| ------------- | ------------- |
+| ------------- | ------------- | ------------- |
 | application_router_ip | True | IP address for the DNS A-record to be pointed to, for example a load balancer or the OpenShift router |
 | resolv_conf | False | If the target DNS server is not connected up with your standard resolvers, use this to override with a different resolver file (e.g.: pointing to the dns_server below) |
 | dns_server | True | The target DNS server (FQDN or IP) |
