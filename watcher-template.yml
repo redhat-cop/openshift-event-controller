@@ -49,8 +49,6 @@ objects:
         uri: ${SOURCE_CODE_URL}
         ref: ${SOURCE_CODE_REF}
       contextDir: ${SOURCE_CODE_CONTEXT_DIR}
-      sourceSecret:
-        name: "gitpull"
     strategy:
       dockerStrategy:
         from:

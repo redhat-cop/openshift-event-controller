@@ -2,15 +2,27 @@
 
 The OpenShift Event Watcher is a utility used as a service integrator for OpenShift and other third party components
 
+## Setup Dev Environment
+
+Before we can test locally, we need to install some dependencies and gather some information about our Cluster.
+
+```
+yum -y install libffi-devel
+pip3 install requests pkiutils pyopenssl
+```
+
+Now, create a directory in which to store local configs. The directory name below coincides with the directory that would be mounted into a pod.
+
+```
+mkdir -p ./kubernetes.io/serviceaccount
+oc login # Interactive step
+oc whoami -t > kubernetes.io/serviceaccount/token
+# Place OpenShift CA file at kubernetes.io/serviceaccount/ca.crt
+echo QUIT | openssl s_client -showcerts -connect <kubernetes-master-hostname>:8443 2>&1  | openssl x509 -text | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > kubernetes.io/serviceaccount/ca.crt
+```
+
 ## Testing Source Locally
 
-### Setup
-
-```
-oc whoami -t > kubernetes.io/serviceaccount/token
-```
-
-Log into OpenShift and then run a command like the following
 
 ```
 K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-watcher K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python3 watch.py
