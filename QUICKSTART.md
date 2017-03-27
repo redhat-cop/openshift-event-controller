@@ -4,7 +4,7 @@ Let's walk through a simple example of how the Event Controller works.
 
 ```
 oc new-project event-controller
-oc create -f watcher-template.yml
+oc create -f event-controller-template.yml
 oc new-app --template=event-controller
 ```
 

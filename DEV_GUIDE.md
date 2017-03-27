@@ -25,7 +25,7 @@ echo QUIT | openssl s_client -showcerts -connect <kubernetes-master-hostname>:84
 
 
 ```
-K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-watcher K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python3 watch.py
+K8S_TOKEN=`oc whoami -t` K8S_API_ENDPOINT='master.example.com:8443' K8S_NAMESPACE=event-controller K8S_CA=./kubernetes.io/serviceaccount/ca.crt K8S_RESOURCE=routes python3 watch.py
 ```
 
 You should see a log of data about the Namespace you passed in.
@@ -33,13 +33,13 @@ You should see a log of data about the Namespace you passed in.
 ## Testing The Image Locally
 
 ```
-docker run -v /home/esauer/src/oc-watcher-skel/kubernetes.io/:/etc/config:z -v /home/esauer/src/oc-watcher-skel/kubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/config/config.ini event-watcher
+docker run -v /home/esauer/src/oc-watcher-skel/kubernetes.io/:/etc/config:z -v /home/esauer/src/oc-watcher-skel/kubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/config/config.ini event-controller
 ```
 
 If you want to debug the running image itself:
 
 ```
-docker run -it --entrypoint=/bin/bash -v /path/to/kubernetes.io/conf:/etc/watcher/:z -v /path/tokubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/watcher/config.ini event-watcher
+docker run -it --entrypoint=/bin/bash -v /path/to/kubernetes.io/conf:/etc/watcher/:z -v /path/tokubernetes.io/serviceaccount:/var/run/secrets/kubernetes.io/serviceaccount:z -e CONFIG_FILE=/etc/watcher/config.ini event-controller
 ```
 
 ## Configuration
