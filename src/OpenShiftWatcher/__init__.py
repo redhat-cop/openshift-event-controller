@@ -25,7 +25,7 @@ class OpenShiftWatcher(object):
         resp = self.session.send(req, stream=True, verify=self.ca_trust)
 
         if resp.status_code != 200:
-            raise Exception("Unable to contact OpenShift API. Message from server: {0}".format(resp.text))
+            raise Exception("Unable to contact OpenShift API at {0}. Message from server: {1}".format(self.os_api_url, resp.text))
 
         for line in resp.iter_lines():
             if line:

@@ -1,0 +1,174 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: event-watcher
+metadata:
+  annotations:
+  name: event-watcher
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      template: ${APPLICATION_NAME}
+    name: python-35-centos7
+  spec:
+    tags:
+    - annotations:
+        openshift.io/imported-from: centos/python-35-centos7
+      from:
+        kind: DockerImage
+        name: centos/python-35-centos7
+      generation: 2
+      importPolicy: {}
+      name: latest
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      template: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+    labels:
+      template: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APPLICATION_NAME}:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      type: Git
+      git:
+        uri: ${SOURCE_CODE_URL}
+        ref: ${SOURCE_CODE_REF}
+      contextDir: ${SOURCE_CODE_CONTEXT_DIR}
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: python-35-centos7:latest
+      type: Docker
+    triggers:
+    - github:
+        secret: A_yyouzqlQq97DLR9MEn
+      type: GitHub
+    - generic:
+        secret: gJXJoTgAMPBPbofHusDR
+      type: Generic
+    - type: ConfigChange
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      template: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
+  spec:
+    replicas: 1
+    selector:
+      app: ${APPLICATION_NAME}
+      deploymentconfig: ${APPLICATION_NAME}
+    strategy:
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+        labels:
+          app: ${APPLICATION_NAME}
+          deploymentconfig: ${APPLICATION_NAME}
+      spec:
+        volumes:
+        - name: config-volume
+          configMap:
+            name: ${APPLICATION_NAME}
+        containers:
+        - env:
+          - name: CONFIG_FILE
+            value: /etc/config/config.ini
+          image: ${APPLICATION_NAME}
+          imagePullPolicy: Always
+          name: ${APPLICATION_NAME}
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        serviceAccountName: ${APPLICATION_NAME}
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APPLICATION_NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${APPLICATION_NAME}:latest
+      type: ImageChange
+- apiVersion: v1
+  data:
+    config.ini: |
+      [global]
+      k8s_resource=routes
+      watcher_plugin=simple
+
+      [plugin_simple]
+  kind: ConfigMap
+  metadata:
+    name: ${APPLICATION_NAME}
+  labels:
+    template: ${APPLICATION_NAME}
+- apiVersion: v1
+  kind: ServiceAccount
+  metadata:
+    labels:
+      template: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}
+- apiVersion: v1
+  groupNames: null
+  kind: RoleBinding
+  metadata:
+    labels:
+      template: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}_edit
+  roleRef:
+    name: edit
+  subjects:
+  - kind: ServiceAccount
+    name: ${APPLICATION_NAME}
+parameters:
+- description: The name for the application.
+  name: APPLICATION_NAME
+  required: true
+  value: event-watcher
+- description: Source code repo URL
+  name: SOURCE_CODE_URL
+  required: true
+  value: https://github.com/redhat-cop/event-watcher.git
+- description: Source code branch
+  name: SOURCE_CODE_REF
+  required: true
+  value: master
+- description: Directory in your source code repo
+  name: SOURCE_CODE_CONTEXT_DIR
+  required: false
