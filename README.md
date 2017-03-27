@@ -1,6 +1,6 @@
-# OpenShift Event Watcher
+# OpenShift Event Controller
 
-The OpenShift Event Watcher is a utility used as a service integrator for OpenShift and other third party components.
+The OpenShift Event Controller is a utility used as a service integrator for OpenShift and other third party components.
 
 ## Getting Started
 
@@ -19,7 +19,7 @@ We currently support the following plugins:
 
 ## Configuration
 
-The Event Watcher can be configured either through Environment Variables or a Config Files. We recommend the config file.
+The event controller can be configured either through Environment Variables or a Config Files. We recommend the config file.
 
 A sample config file looks like:
 

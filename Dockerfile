@@ -10,14 +10,14 @@ RUN yum -y install libffi-devel; \
   pip install requests pkiutils pyopenssl; \
   yum clean all;
 
-RUN mkdir -p /opt/event-watcher
+RUN mkdir -p /opt/event-controller
 
-COPY ./src/ /opt/event-watcher/
+COPY ./src/ /opt/event-controller/
 
-COPY ./bin/ /opt/event-watcher/bin
+COPY ./bin/ /opt/event-controller/bin
 
-RUN chown -R 1001:1001 /opt/event-watcher
+RUN chown -R 1001:1001 /opt/event-controller
 
 USER 1001
 
-ENTRYPOINT ["/opt/event-watcher/bin/start.sh"]
+ENTRYPOINT ["/opt/event-controller/bin/start.sh"]

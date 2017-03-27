@@ -1,6 +1,6 @@
-# Event Watcher Dev Guide
+# Event Controller Dev Guide
 
-The OpenShift Event Watcher is a utility used as a service integrator for OpenShift and other third party components
+The OpenShift Event Controller is a utility used as a service integrator for OpenShift and other third party components
 
 ## Setup Dev Environment
 
@@ -44,13 +44,13 @@ docker run -it --entrypoint=/bin/bash -v /path/to/kubernetes.io/conf:/etc/watche
 
 ## Configuration
 
-The Event Watcher can be configured via either Environment variables or an ini file. A sample config file can be found at `conf/config.ini.sample`. To run the watcher with a config file, run:
+The event controller can be configured via either Environment variables or an ini file. A sample config file can be found at `conf/config.ini.sample`. To run the watcher with a config file, run:
 
 `python3 watch.py --config conf/config.ini`
 
 ## Plugin Architecture
 
-The event watcher is designed to be pluggable. New plugins can be created by simply creating a python module that implements a single `handle_event()` method, which takes a single `dict` object as an argument (the `event` object).
+The event controller is designed to be pluggable. New plugins can be created by simply creating a python module that implements a single `handle_event()` method, which takes a single `dict` object as an argument (the `event` object).
 
 A plugin is invoked like so:
 
