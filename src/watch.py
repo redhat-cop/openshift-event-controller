@@ -29,9 +29,13 @@ class EventWatcher(object):
     def watch(self, resource_type, plugin_name, *args, **kwargs):
         plugin = self.load_plugin(plugin_name)
         watcher = OpenShiftWatcher(os_api_endpoint=self.config.k8s_endpoint,
-                                   os_resource=resource_type,
-                                   os_namespace=self.config.k8s_namespace,
                                    os_auth_token=self.config.k8s_token,
+                                   os_namespaced=self.config.k8s_namespaced,
+                                   os_namespace=self.config.k8s_namespace,
+                                   os_api_path=self.config.k8s_api_path,
+                                   os_api_group=self.config.k8s_api_group,
+                                   os_api_version=self.config.k8s_api_version,
+                                   os_resource=resource_type,
                                    ca_trust=self.config.k8s_ca)
 
         for event in watcher.stream():
