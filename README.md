@@ -53,7 +53,7 @@ resolv_conf=/path/to/tmp_resolv.conf
 | ------------- | ------------- | -------| --------- |
 | K8S_API_ENDPOINT | k8s_api_endpoint | True | OpenShift/Kubernetes API hostname:port |
 | K8S_TOKEN  | k8s_token | True; will be pulled from Pod | Login token (`oc whoami -t`) |
-| K8S_NAMESPACED | k8s_namespaced | False | Whether the resource is namespace scoped |
+| K8S_NAMESPACED | k8s_namespaced | True | Whether the resource is namespace scoped |
 | K8S_NAMESPACE | k8s_namespace | When `K8S_NAMESPACED` is `True`; will be pulled from Pod | Namespace you want to listen watch resources in |
 | K8S_API_PATH | k8s_api_path | False | The full API resource path. Override API path construction based on other values |
 | K8S_API_GROUP | k8s_api_group | False | Kubernetes API group |
