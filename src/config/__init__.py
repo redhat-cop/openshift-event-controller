@@ -28,6 +28,10 @@ class WatcherConfig(object):
             self.k8s_namespace = self.getParam(constants.ENV_K8S_NAMESPACE, constants.DEFAULT_K8S_NAMESPACE)
             self.k8s_endpoint = self.getParam(constants.ENV_K8S_API, '', constants.DEFAULT_K8S_API)
             self.k8s_ca = self.getParam(constants.ENV_K8S_CA, '', constants.DEFAULT_K8S_CA)
+            self.k8s_namespaced = self.getParam(constants.ENV_K8S_NAMESPACED, '', constants.DEFAULT_K8S_NAMESPACED)
+            self.k8s_api_path = self.getParam(constants.ENV_K8S_API_PATH)
+            self.k8s_api_group = self.getParam(constants.ENV_K8S_API_GROUP, '', constants.DEFAULT_K8S_API_GROUP)
+            self.k8s_api_version = self.getParam(constants.ENV_K8S_API_VERSION, '', constants.DEFAULT_K8S_API_VERSION)
             self.k8s_resource = self.getParam(constants.ENV_K8S_RESOURCE)
 
     def getPlugin(self):
@@ -51,7 +55,7 @@ class WatcherConfig(object):
         except KeyError:
             try:
                 if 'global' in self.config:
-                    if self.config['global'].get(env.lower()) == None:
+                    if self.config['global'].get(env.lower()) == None or not self.config['global'].get(env.lower()):
                         raise KeyError('No Log Level Set')
                     return self.config['global'].get(env.lower())
             except KeyError:
@@ -71,8 +75,8 @@ class WatcherConfig(object):
         return validated
 
     def validateConfig(self):
-        # Kube resource should be set
-        if not self.k8s_resource:
+        # Kube resource should be set when API path not set
+        if not self.k8s_api_path and not self.k8s_resource:
             raise InvalidResourceError(
                 'Kubernetes resource not set. Either export {0}=<kind>, or set {1}=<kind> in {2}'.format(
                     constants.ENV_K8S_RESOURCE.upper(),
@@ -80,8 +84,8 @@ class WatcherConfig(object):
                     self.config_file
                 )
             )
-        # Namespace should be set
-        if not self.k8s_namespace:
+        # Namespace should be set when namespace is expected
+        if self.k8s_namespaced and not self.k8s_namespace:
             raise InvalidNamespaceError(
                 'Namespace is not set. Either export {0}=<kind>, or set {1}=<kind> in {2}'.format(
                     constants.ENV_K8S_NAMESPACE.upper(),

@@ -2,16 +2,20 @@ import requests
 import json
 
 class OpenShiftWatcher(object):
-    def __init__(self, os_api_endpoint, os_resource, os_namespace, os_auth_token, ca_trust='/etc/ssl/certs/ca-bundle.trust.crt'):
+    def __init__(self, os_api_endpoint, os_auth_token, os_namespaced, os_namespace, os_api_path, os_api_group, os_api_version, os_resource, ca_trust='/etc/ssl/certs/ca-bundle.trust.crt'):
         ''' os_auth_token generated from `oc whoami -t`
 
             Example:
             watcher = OpenShiftWatcher(os_api_endpoint="master1.example.com:8443",
-                                       os_resource="routes",
+                                       os_auth_token="lTBiDnvYlHhuOl3C9Tj_Mb-FvL0hcMMONIua0E0D5CE",
+                                       os_namespaced='True',
                                        os_namespace="joe",
-                                       os_auth_token="lTBiDnvYlHhuOl3C9Tj_Mb-FvL0hcMMONIua0E0D5CE")
+                                       os_api_path="",
+                                       os_api_group="oapi",
+                                       os_api_version="v1",
+                                       os_resource="routes")
         '''
-        self.os_api_url = "https://{0}/oapi/v1/namespaces/{1}/{2}?watch=true".format(os_api_endpoint, os_namespace, os_resource)
+        self.os_api_url = self.generate_url_resource(os_api_endpoint, os_namespaced, os_namespace, os_api_path, os_api_group, os_api_version, os_resource)
         self.os_auth_token = os_auth_token
         self.session = requests.Session()
         self.ca_trust = ca_trust
@@ -35,3 +39,12 @@ class OpenShiftWatcher(object):
                     # TODO: Logging -> "No Json Object could be decoded."
                 except Exception as e:
                     raise Exception("Watcher error: {0}".format(e))
+
+    def generate_url_resource(self, os_api_endpoint, os_namespaced, os_namespace, os_api_path, os_api_group, os_api_version, os_resource):
+        if os_api_path:
+            return "https://{0}/{1}?watch=true".format(os_api_endpoint, os_api_path)
+        else:
+            if os_namespaced == 'True':
+                return "https://{0}/{1}/{2}/namespaces/{3}/{4}?watch=true".format(os_api_endpoint, os_api_group, os_api_version, os_namespace, os_resource)
+            else:
+                return "https://{0}/{1}/{2}/{3}?watch=true".format(os_api_endpoint, os_api_group, os_api_version, os_resource)
