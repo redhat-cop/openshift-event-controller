@@ -16,7 +16,7 @@ DEFAULT_K8S_CA       = '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt'
 DEFAULT_K8S_API      = 'kubernetes.default.svc.cluster.local'
 DEFAULT_K8S_API_VERSION  = 'v1'
 DEFAULT_K8S_API_GROUP    = 'oapi'
-DEFAULT_K8S_NAMESPACED  = 'False'
+DEFAULT_K8S_NAMESPACED  = 'True'
 DEFAULT_WATCHER_PLUGIN       = 'simple'
 DEFAULT_LOG_LEVEL   = 'INFO'
 
