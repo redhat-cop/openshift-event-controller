@@ -10,12 +10,12 @@ To skip right to a first deployment, check out our [Quickstart Tutorial](./QUICK
 
 We currently support the following plugins:
 
-* [Simple Plugin](./plugin_simple)
- * Watches for new resources and logs those events to the console
-* [DNS Plugin](./plugin_dns)
- * Creates DNS records for new routes
-* [Certificates Plugin](./plugin_ipa)
- * Creates certificates and automatically secures new routes as they get created. Works against an IPA or IDM server
+* [Simple Plugin](./src/plugin_simple)
+  * Watches for new resources and logs those events to the console
+* [DNS Plugin](./src/plugin_dns)
+  * Creates DNS records for new routes
+* [Certificates Plugin](./src/plugin_ipa)
+  * Creates certificates and automatically secures new routes as they get created. Works against an IPA or IDM server
 
 ## Configuration
 
